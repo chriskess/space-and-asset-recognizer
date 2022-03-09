@@ -6,7 +6,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Checkbox from "@material-ui/core/Checkbox";
 import ListItemText from "@material-ui/core/ListItemText";
 import { makeStyles } from "@material-ui/core/styles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -29,16 +29,27 @@ const MenuProps = {
 
 export default function ArchiSelect({
   list,
+  setList,
   title,
   value = [],
   setter = () => {},
 }) {
-  const [personName, setPersonName] = useState(value);
+  const [items, setItems] = useState(value);
   const classes = useStyles();
   const handleChange = (event) => {
-    setPersonName(event.target.value);
+    setItems(event.target.value);
     setter(event.target.value);
   };
+  const handleColor = (event, index) => {
+    event.stopPropagation();
+    let newList = [...list.map((el) => ({ ...el }))];
+    newList[index].color = event.target.value;
+    setList(newList);
+  };
+
+  useEffect(() => {
+    setItems(value);
+  }, [value]);
 
   return (
     <FormControl variant="outlined" className={classes.formControl}>
@@ -47,16 +58,22 @@ export default function ArchiSelect({
         labelId="demo-mutiple-checkbox-label"
         id="demo-mutiple-checkbox"
         multiple
-        value={personName}
+        value={items}
         onChange={handleChange}
         input={<Input />}
         renderValue={(selected) => selected.join(", ")}
         MenuProps={MenuProps}
       >
-        {list.map((name) => (
-          <MenuItem key={name} value={name}>
-            <Checkbox checked={personName.indexOf(name) > -1} />
-            <ListItemText primary={name} />
+        {list.map((item, index) => (
+          <MenuItem key={item.value} value={item.value}>
+            <Checkbox checked={items.indexOf(item.value) > -1} />
+            <ListItemText primary={item.value} />
+            <input
+              type="color"
+              value={item.color}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => handleColor(e, index)}
+            />
           </MenuItem>
         ))}
       </Select>
