@@ -3,7 +3,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
-import Checkbox from "@material-ui/core/Checkbox";
+import Checkbox from "@mui/material/Checkbox";
 import ListItemText from "@material-ui/core/ListItemText";
 import { makeStyles } from "@material-ui/core/styles";
 import { useEffect, useState } from "react";
@@ -11,8 +11,8 @@ import { useEffect, useState } from "react";
 const useStyles = makeStyles((theme) => ({
   formControl: {
     margin: theme.spacing(1),
-    minWidth: 120,
-    maxWidth: 300,
+    minWidth: 200,
+    maxWidth: 350,
   },
 }));
 
@@ -36,14 +36,16 @@ export default function ArchiSelect({
 }) {
   const [items, setItems] = useState(value);
   const classes = useStyles();
+
   const handleChange = (event) => {
     setItems(event.target.value);
     setter(event.target.value);
   };
   const handleColor = (event, index) => {
     event.stopPropagation();
-    let newList = [...list.map((el) => ({ ...el }))];
+    let newList = [...list];
     newList[index].color = event.target.value;
+    console.log(newList);
     setList(newList);
   };
 
@@ -66,7 +68,15 @@ export default function ArchiSelect({
       >
         {list.map((item, index) => (
           <MenuItem key={item.value} value={item.value}>
-            <Checkbox checked={items.indexOf(item.value) > -1} />
+            <Checkbox
+              sx={{
+                color: item.color,
+                "&.Mui-checked": {
+                  color: item.color,
+                },
+              }}
+              checked={items.indexOf(item.value) > -1}
+            />
             <ListItemText primary={item.value} />
             <input
               type="color"
