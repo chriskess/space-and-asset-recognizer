@@ -10,12 +10,12 @@ function App() {
   const [subCategory, setSubCategory] = useState([]);
   const [selectedSubCategory, setSelectedSubCategory] = useState([]);
   // Create publishable access token at https://developers.archilogic.com/access-tokens.html
-  //   let queryString = window.location.search;
-  //   let urlParams = new URLSearchParams(queryString);
-  //   const publishableToken = urlParams.get("publishableToken");
-  //   const demoSceneId = urlParams.get("demoSceneId");
-  const publishableToken = "5d2e8502-9a07-4e10-a933-3234eebce84b";
-  const demoSceneId = "e29f7047-19b0-41ae-8926-d6d9ad26a015";
+  let queryString = window.location.search;
+  let urlParams = new URLSearchParams(queryString);
+  const publishableToken = urlParams.get("publishableToken");
+  const demoSceneId = urlParams.get("demoSceneId");
+  //const publishableToken = "5d2e8502-9a07-4e10-a933-3234eebce84b";
+  //const demoSceneId = "e29f7047-19b0-41ae-8926-d6d9ad26a015";
 
   function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -27,28 +27,31 @@ function App() {
   }
 
   useEffect(() => {
-    const container = document.getElementById("hello-plan");
-    const floorPlan = new window.FloorPlanEngine(container);
-    floorPlan.loadScene(demoSceneId, { publishableToken }).then(() => {
-      console.log(floorPlan.resources);
-      setAssets(floorPlan.resources.assets);
-      let uniqualCategory = new Set();
-      floorPlan.resources.assets.forEach((asset) => {
-        asset.categories.forEach((category) => uniqualCategory.add(category));
+    if (publishableToken && demoSceneId) {
+      const container = document.getElementById("hello-plan");
+      const floorPlan = new window.FloorPlanEngine(container);
+      floorPlan.loadScene(demoSceneId, { publishableToken }).then(() => {
+        console.log(floorPlan.resources);
+        setAssets(floorPlan.resources.assets);
+        let uniqualCategory = new Set();
+        floorPlan.resources.assets.forEach((asset) => {
+          asset.categories.forEach((category) => uniqualCategory.add(category));
+        });
+        setCategory(
+          Array.from(uniqualCategory).map((value) => ({
+            value,
+            color: "#aa0000",
+          }))
+        );
       });
-      setCategory(
-        Array.from(uniqualCategory).map((value) => ({
-          value,
-          color: "#aa0000",
-        }))
-      );
-    });
+    }
   }, []);
 
   useEffect(() => {
     if (selectedCategory.length && assets.length) {
       //debugger;
       let uniqualSubCategory = new Set();
+
       assets.forEach((asset) => {
         if (
           asset.categories.some((category) =>
@@ -59,15 +62,36 @@ function App() {
             uniqualSubCategory.add(subCategory)
           );
         }
-        console.log(uniqualSubCategory);
+        //console.log(uniqualSubCategory);
       });
       let listOfSubcategories = Array.from(uniqualSubCategory);
       setSubCategory(
-        listOfSubcategories.map((value) => ({ value, color: "#ff0000" }))
+        listOfSubcategories.map((value) => ({ value, color: "#aa0000" }))
       );
       setSelectedSubCategory(listOfSubcategories);
     }
   }, [selectedCategory]);
+
+  useEffect(() => {
+    if (category.length) {
+      let newSubCategories = [...subCategory].map((subcategory) => {
+        let find = assets.find((item) =>
+          item.subCategories.includes(subcategory.value)
+        );
+        let categoryFounded = selectedCategory.find((category) =>
+          find.categories.includes(category)
+        );
+        let color = category.find((item) => item.value === categoryFounded);
+        if (color) {
+          subcategory.color = color.color;
+        }
+        //debugger;
+        return subcategory;
+      });
+
+      setSubCategory(newSubCategories);
+    }
+  }, [category]);
 
   useEffect(() => {
     assets.forEach((asset) => {
@@ -114,10 +138,10 @@ function App() {
     });
     document.querySelector(".left").appendChild(select);
   }*/
-  return (
+  return demoSceneId && publishableToken ? (
     <div className="container">
       <div className="left">
-        <h2>Space & Asset Recognizer</h2>
+        <h2>Asset Recognizer</h2>
         <ArchiSelect
           list={category}
           setList={setCategory}
@@ -134,6 +158,20 @@ function App() {
         />
       </div>
       <div id="hello-plan"></div>
+    </div>
+  ) : (
+    <div className="info">
+      Please add your sceneID and token into your browser in the following
+      format
+      <div>
+        <code>
+          <i>YOUR DOMAIN</i>
+          <b>/?publishableToken=</b>
+          <i>YOUR TOKEN</i>
+          <b>&demoSceneId=</b>
+          <i>YOUR SCENE ID</i>
+        </code>
+      </div>
     </div>
   );
 }

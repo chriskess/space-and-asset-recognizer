@@ -37,3 +37,22 @@ select {
   width: 75%;
   background-color: 238, 241, 246, 255;
 }
+
+.info {
+  width: 650px;
+  background-color: rgb(240, 240, 240);
+  border-radius: 5px;
+  padding: 15px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 25px;
+  color: rgb(50, 50, 50);
+  margin: auto;
+  margin-top: 30vh;
+}
+
+.info code {
+  font-size: 15px;
+}
+.info b {
+  padding: 4px;
+}
