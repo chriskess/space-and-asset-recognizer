@@ -9,6 +9,13 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
   const [selectedSubCategory, setSelectedSubCategory] = useState([]);
+
+  const [spaceList, setSpaceList] = useState([]);
+  const [spaces, setSpaces] = useState([]);
+  const [selectedSpaces, setSelectedSpaces] = useState([]);
+  const [usage, setUsage] = useState([]);
+  const [selectedUsage, setSelectedUsage] = useState([]);
+
   // Create publishable access token at https://developers.archilogic.com/access-tokens.html
   let queryString = window.location.search;
   let urlParams = new URLSearchParams(queryString);
@@ -43,6 +50,18 @@ function App() {
             color: "#aa0000",
           }))
         );
+
+        setSpaceList(floorPlan.resources.spaces);
+        let uniqualSpaces = new Set();
+        floorPlan.resources.spaces.forEach((space) => {
+          uniqualSpaces.add(space.program);
+        });
+        setSpaces(
+          Array.from(uniqualSpaces).map((value) => ({
+            value,
+            color: "#aa0000",
+          }))
+        );
       });
     }
   }, []);
@@ -73,6 +92,24 @@ function App() {
   }, [selectedCategory]);
 
   useEffect(() => {
+    if (selectedSpaces.length && spaceList.length) {
+      //debugger;
+      let uniqualUsage = new Set();
+
+      spaceList.forEach((space) => {
+        if (selectedSpaces.includes(space.program)) {
+          uniqualUsage.add(space.usageName);
+        }
+        //console.log(uniqualSubCategory);
+      });
+      let listOfUsage = Array.from(uniqualUsage);
+      setUsage(listOfUsage.map((value) => ({ value, color: "#aa0000" })));
+      setSelectedUsage(listOfUsage);
+    }
+  }, [selectedSpaces]);
+
+  useEffect(() => {
+    //to update colors of subcategories if categories color was updated
     if (category.length) {
       let newSubCategories = [...subCategory].map((subcategory) => {
         let find = assets.find((item) =>
@@ -109,6 +146,19 @@ function App() {
       }
     });
   }, [selectedSubCategory, subCategory]);
+
+  useEffect(() => {
+    spaceList.forEach((space) => {
+      // debugger;
+      if (selectedUsage.includes(space.usageName)) {
+        let { color } = usage.find((i) => i.value == space.usageName);
+        //debugger;
+        space.node.setHighlight({ fill: hexToRgb(color) });
+      } else {
+        space.node.setHighlight({ fill: [255, 255, 255] });
+      }
+    });
+  }, [selectedUsage, usage]);
 
   /*function generateSelectBox(list, title, assets, prop) {
     let select = document.createElement("select");
@@ -149,13 +199,32 @@ function App() {
           value={selectedCategory}
           setter={setSelectedCategory}
         />
+        {subCategory.length > 0 && (
+          <ArchiSelect
+            list={subCategory}
+            setList={setSubCategory}
+            title="subcategory"
+            value={selectedSubCategory}
+            setter={setSelectedSubCategory}
+          />
+        )}
+        <h2>Space Recognizer</h2>
         <ArchiSelect
-          list={subCategory}
-          setList={setSubCategory}
-          title="subcategory"
-          value={selectedSubCategory}
-          setter={setSelectedSubCategory}
+          list={spaces}
+          setList={setSpaces}
+          title="space"
+          value={selectedSpaces}
+          setter={setSelectedSpaces}
         />
+        {usage.length > 0 && (
+          <ArchiSelect
+            list={usage}
+            setList={setUsage}
+            title="usage"
+            value={selectedUsage}
+            setter={setSelectedUsage}
+          />
+        )}
       </div>
       <div id="hello-plan"></div>
     </div>
