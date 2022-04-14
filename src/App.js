@@ -40,10 +40,12 @@ function App() {
       floorPlan.loadScene(demoSceneId, { publishableToken }).then(() => {
         console.log(floorPlan.resources);
         setAssets(floorPlan.resources.assets);
+
         let uniqualCategory = new Set();
         floorPlan.resources.assets.forEach((asset) => {
           asset.categories.forEach((category) => uniqualCategory.add(category));
         });
+
         setCategory(
           Array.from(uniqualCategory).map((value) => ({
             value,
@@ -51,7 +53,22 @@ function App() {
           }))
         );
 
+        let uniqualSubCategory = new Set();
+        floorPlan.resources.assets.forEach((asset) => {
+          asset.subCategories.forEach((subcategory) =>
+            uniqualSubCategory.add(subcategory)
+          );
+        });
+        debugger;
+        setSubCategory(
+          Array.from(uniqualSubCategory).map((value) => ({
+            value,
+            color: "#aa0000",
+          }))
+        );
+
         setSpaceList(floorPlan.resources.spaces);
+
         let uniqualSpaces = new Set();
         floorPlan.resources.spaces.forEach((space) => {
           uniqualSpaces.add(space.program);
@@ -62,6 +79,19 @@ function App() {
             color: "#aa0000",
           }))
         );
+
+        let uniqualUsages = new Set();
+        floorPlan.resources.spaces.forEach((space) => {
+          uniqualUsages.add(space.usageName);
+        });
+        debugger;
+        setUsage(
+          Array.from(uniqualUsages).map((value) => ({
+            value,
+            color: "#aa0000",
+          }))
+        );
+        // debugger;
       });
     }
   }, []);
@@ -84,6 +114,7 @@ function App() {
         //console.log(uniqualSubCategory);
       });
       let listOfSubcategories = Array.from(uniqualSubCategory);
+      //debugger;
       setSubCategory(
         listOfSubcategories.map((value) => ({ value, color: "#aa0000" }))
       );
@@ -103,6 +134,7 @@ function App() {
         //console.log(uniqualSubCategory);
       });
       let listOfUsage = Array.from(uniqualUsage);
+      debugger;
       setUsage(listOfUsage.map((value) => ({ value, color: "#aa0000" })));
       setSelectedUsage(listOfUsage);
     }
@@ -110,7 +142,7 @@ function App() {
 
   useEffect(() => {
     //to update colors of subcategories if categories color was updated
-    if (category.length) {
+    if (category.length && selectedCategory.length) {
       let newSubCategories = [...subCategory].map((subcategory) => {
         let find = assets.find((item) =>
           item.subCategories.includes(subcategory.value)
@@ -126,9 +158,37 @@ function App() {
         return subcategory;
       });
 
+      debugger;
       setSubCategory(newSubCategories);
     }
   }, [category]);
+
+  useEffect(() => {
+    if (spaces.length && selectedSpaces.length) {
+      console.log({ spaceList, spaces, selectedSpaces, usage, selectedUsage });
+      //debugger;
+      let newUsage = usage.map((usageItem) => {
+        let program = spaceList.find((i) => i.usageName === usageItem.value)
+          .program;
+        let color = spaces.find((i) => i.value === program).color;
+        return { ...usageItem, color };
+      });
+      /*let uniqualUsage = new Set();
+
+      spaceList.forEach((space) => {
+        if (selectedSpaces.includes(space.program)) {
+          uniqualUsage.add(space.usageName);
+        }
+        //console.log(uniqualSubCategory);
+      });
+      let listOfUsage = Array.from(uniqualUsage);
+      setUsage(listOfUsage.map((value) => ({ value, color: "#aa0000" })));
+      setSelectedUsage(listOfUsage);
+      */
+      debugger;
+      setUsage(newUsage);
+    }
+  }, [spaces]);
 
   useEffect(() => {
     assets.forEach((asset) => {
@@ -199,15 +259,14 @@ function App() {
           value={selectedCategory}
           setter={setSelectedCategory}
         />
-        {subCategory.length > 0 && (
-          <ArchiSelect
-            list={subCategory}
-            setList={setSubCategory}
-            title="subcategory"
-            value={selectedSubCategory}
-            setter={setSelectedSubCategory}
-          />
-        )}
+
+        <ArchiSelect
+          list={subCategory}
+          setList={setSubCategory}
+          title="subcategory"
+          value={selectedSubCategory}
+          setter={setSelectedSubCategory}
+        />
         <h2>Space Recognizer</h2>
         <ArchiSelect
           list={spaces}
@@ -216,15 +275,13 @@ function App() {
           value={selectedSpaces}
           setter={setSelectedSpaces}
         />
-        {usage.length > 0 && (
-          <ArchiSelect
-            list={usage}
-            setList={setUsage}
-            title="usage"
-            value={selectedUsage}
-            setter={setSelectedUsage}
-          />
-        )}
+        <ArchiSelect
+          list={usage}
+          setList={setUsage}
+          title="usage"
+          value={selectedUsage}
+          setter={setSelectedUsage}
+        />
       </div>
       <div id="hello-plan"></div>
     </div>
