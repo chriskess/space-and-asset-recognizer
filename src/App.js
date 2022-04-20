@@ -6,15 +6,15 @@ import ArchiSelect from "./components/ArchiSelect";
 function App() {
   const [assets, setAssets] = useState([]);
   const [category, setCategory] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState({});
   const [subCategory, setSubCategory] = useState([]);
-  const [selectedSubCategory, setSelectedSubCategory] = useState([]);
+  const [selectedSubCategory, setSelectedSubCategory] = useState({});
 
   const [spaceList, setSpaceList] = useState([]);
   const [spaces, setSpaces] = useState([]);
-  const [selectedSpaces, setSelectedSpaces] = useState([]);
+  const [selectedSpaces, setSelectedSpaces] = useState({});
   const [usage, setUsage] = useState([]);
-  const [selectedUsage, setSelectedUsage] = useState([]);
+  const [selectedUsage, setSelectedUsage] = useState({});
 
   // Create publishable access token at https://developers.archilogic.com/access-tokens.html
   let queryString = window.location.search;
@@ -59,7 +59,7 @@ function App() {
             uniqualSubCategory.add(subcategory)
           );
         });
-        debugger;
+        //debugger;
         setSubCategory(
           Array.from(uniqualSubCategory).map((value) => ({
             value,
@@ -84,7 +84,7 @@ function App() {
         floorPlan.resources.spaces.forEach((space) => {
           uniqualUsages.add(space.usageName);
         });
-        debugger;
+        //debugger;
         setUsage(
           Array.from(uniqualUsages).map((value) => ({
             value,
@@ -97,16 +97,12 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (selectedCategory.length && assets.length) {
+    if (assets.length && Object.values(selectedCategory).some(Boolean)) {
       //debugger;
       let uniqualSubCategory = new Set();
 
       assets.forEach((asset) => {
-        if (
-          asset.categories.some((category) =>
-            selectedCategory.includes(category)
-          )
-        ) {
+        if (asset.categories.some((category) => selectedCategory[category])) {
           asset.subCategories.forEach((subCategory) =>
             uniqualSubCategory.add(subCategory)
           );
@@ -118,37 +114,44 @@ function App() {
       setSubCategory(
         listOfSubcategories.map((value) => ({ value, color: "#aa0000" }))
       );
-      setSelectedSubCategory(listOfSubcategories);
+      listOfSubcategories.forEach((item) => {
+        selectedSubCategory[item] = true;
+      });
+      setSelectedSubCategory({ ...selectedSubCategory });
     }
   }, [selectedCategory]);
 
   useEffect(() => {
-    if (selectedSpaces.length && spaceList.length) {
+    if (spaceList.length && Object.values(selectedSpaces).some(Boolean)) {
       //debugger;
       let uniqualUsage = new Set();
 
       spaceList.forEach((space) => {
-        if (selectedSpaces.includes(space.program)) {
+        if (selectedSpaces[space.program]) {
           uniqualUsage.add(space.usageName);
         }
         //console.log(uniqualSubCategory);
       });
       let listOfUsage = Array.from(uniqualUsage);
-      debugger;
-      setUsage(listOfUsage.map((value) => ({ value, color: "#aa0000" })));
-      setSelectedUsage(listOfUsage);
+      //debugger;
+      //setUsage(listOfUsage.map((value) => ({ value, color: "#aa0000" })));
+      listOfUsage.forEach((item) => {
+        selectedUsage[item] = true;
+      });
+      setSelectedUsage({ ...selectedUsage });
+    } else {
     }
   }, [selectedSpaces]);
 
   useEffect(() => {
     //to update colors of subcategories if categories color was updated
-    if (category.length && selectedCategory.length) {
+    if (category.length && Object.values(selectedCategory).some(Boolean)) {
       let newSubCategories = [...subCategory].map((subcategory) => {
         let find = assets.find((item) =>
           item.subCategories.includes(subcategory.value)
         );
-        let categoryFounded = selectedCategory.find((category) =>
-          find.categories.includes(category)
+        let categoryFounded = find.categories.find(
+          (category) => selectedCategory[category]
         );
         let color = category.find((item) => item.value === categoryFounded);
         if (color) {
@@ -158,13 +161,13 @@ function App() {
         return subcategory;
       });
 
-      debugger;
-      setSubCategory(newSubCategories);
+      //debugger;
+      //setSubCategory(newSubCategories);
     }
   }, [category]);
 
   useEffect(() => {
-    if (spaces.length && selectedSpaces.length) {
+    if (spaces.length && Object.values(selectedSpaces).some(Boolean)) {
       console.log({ spaceList, spaces, selectedSpaces, usage, selectedUsage });
       //debugger;
       let newUsage = usage.map((usageItem) => {
@@ -185,19 +188,17 @@ function App() {
       setUsage(listOfUsage.map((value) => ({ value, color: "#aa0000" })));
       setSelectedUsage(listOfUsage);
       */
-      debugger;
-      setUsage(newUsage);
+      //debugger;
+      //setUsage(newUsage);
     }
   }, [spaces]);
 
   useEffect(() => {
     assets.forEach((asset) => {
       //console.log(subCategory);
-      let item = selectedSubCategory.find((item) =>
-        asset.subCategories.includes(item)
-      );
-
+      let item = asset.subCategories.find((item) => selectedSubCategory[item]);
       if (item) {
+        debugger;
         let { color } = subCategory.find((i) => i.value == item);
         //debugger;
         asset.node.setHighlight({ fill: hexToRgb(color) });
@@ -210,7 +211,7 @@ function App() {
   useEffect(() => {
     spaceList.forEach((space) => {
       // debugger;
-      if (selectedUsage.includes(space.usageName)) {
+      if (selectedUsage[space.usageName]) {
         let { color } = usage.find((i) => i.value == space.usageName);
         //debugger;
         space.node.setHighlight({ fill: hexToRgb(color) });

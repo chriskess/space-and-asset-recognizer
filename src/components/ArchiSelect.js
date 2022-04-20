@@ -31,15 +31,19 @@ export default function ArchiSelect({
   list,
   setList,
   title,
-  value = [],
+  value = {},
   setter = () => {},
 }) {
   const [items, setItems] = useState(value);
   const classes = useStyles();
 
   const handleChange = (event) => {
-    setItems(event.target.value);
-    setter(event.target.value);
+    let newValue = event.target.value.reduce((obj, item) => {
+      obj[item] = true;
+      return obj;
+    }, {});
+    setItems(newValue);
+    setter(newValue);
   };
   const handleColor = (event, index) => {
     event.stopPropagation();
@@ -60,7 +64,12 @@ export default function ArchiSelect({
         labelId="demo-mutiple-checkbox-label"
         id="demo-mutiple-checkbox"
         multiple
-        value={items}
+        value={Object.entries(items).reduce((arr, [item, value]) => {
+          if (value) {
+            arr.push(item);
+            return arr;
+          }
+        }, [])}
         onChange={handleChange}
         input={<Input />}
         renderValue={(selected) => selected.join(", ")}
@@ -75,7 +84,7 @@ export default function ArchiSelect({
                   color: item.color,
                 },
               }}
-              checked={items.indexOf(item.value) > -1}
+              checked={items[item.value]}
             />
             <ListItemText primary={item.value} />
             <input
