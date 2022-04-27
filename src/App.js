@@ -1,4 +1,5 @@
 import "./App.css";
+import Input from "@material-ui/core/Input";
 import { useEffect, useState } from "react";
 //import {FloorPlanEngine} from 'archilogic'
 import ArchiSelect from "./components/ArchiSelect";
@@ -21,6 +22,10 @@ function App() {
   let urlParams = new URLSearchParams(queryString);
   const publishableToken = urlParams.get("publishableToken");
   const demoSceneId = urlParams.get("demoSceneId");
+
+  const [token, setToken] = useState(publishableToken);
+  const [scene, setScene] = useState(demoSceneId);
+
   //const publishableToken = "5d2e8502-9a07-4e10-a933-3234eebce84b";
   //const demoSceneId = "e29f7047-19b0-41ae-8926-d6d9ad26a015";
 
@@ -34,10 +39,10 @@ function App() {
   }
 
   useEffect(() => {
-    if (publishableToken && demoSceneId) {
+    if (token && scene) {
       const container = document.getElementById("hello-plan");
       const floorPlan = new window.FloorPlanEngine(container);
-      floorPlan.loadScene(demoSceneId, { publishableToken }).then(() => {
+      floorPlan.loadScene(scene, { publishableToken: token }).then(() => {
         console.log(floorPlan.resources);
         setAssets(floorPlan.resources.assets);
 
@@ -94,9 +99,12 @@ function App() {
         // debugger;
       });
     }
-  }, []);
+  }, [token, scene]);
 
   useEffect(() => {
+    for (let key in selectedSubCategory) {
+      delete selectedSubCategory[key];
+    }
     if (assets.length && Object.values(selectedCategory).some(Boolean)) {
       //debugger;
       let uniqualSubCategory = new Set();
@@ -111,17 +119,21 @@ function App() {
       });
       let listOfSubcategories = Array.from(uniqualSubCategory);
       //debugger;
-      setSubCategory(
+      /*setSubCategory(
         listOfSubcategories.map((value) => ({ value, color: "#aa0000" }))
-      );
+      );*/
+
       listOfSubcategories.forEach((item) => {
         selectedSubCategory[item] = true;
       });
-      setSelectedSubCategory({ ...selectedSubCategory });
     }
+    setSelectedSubCategory({ ...selectedSubCategory });
   }, [selectedCategory]);
 
   useEffect(() => {
+    for (let key in selectedUsage) {
+      delete selectedUsage[key];
+    }
     if (spaceList.length && Object.values(selectedSpaces).some(Boolean)) {
       //debugger;
       let uniqualUsage = new Set();
@@ -135,12 +147,12 @@ function App() {
       let listOfUsage = Array.from(uniqualUsage);
       //debugger;
       //setUsage(listOfUsage.map((value) => ({ value, color: "#aa0000" })));
+
       listOfUsage.forEach((item) => {
         selectedUsage[item] = true;
       });
-      setSelectedUsage({ ...selectedUsage });
-    } else {
     }
+    setSelectedUsage({ ...selectedUsage });
   }, [selectedSpaces]);
 
   useEffect(() => {
@@ -162,7 +174,7 @@ function App() {
       });
 
       //debugger;
-      //setSubCategory(newSubCategories);
+      setSubCategory(newSubCategories);
     }
   }, [category]);
 
@@ -189,7 +201,7 @@ function App() {
       setSelectedUsage(listOfUsage);
       */
       //debugger;
-      //setUsage(newUsage);
+      setUsage(newUsage);
     }
   }, [spaces]);
 
@@ -198,7 +210,7 @@ function App() {
       //console.log(subCategory);
       let item = asset.subCategories.find((item) => selectedSubCategory[item]);
       if (item) {
-        debugger;
+        //debugger;
         let { color } = subCategory.find((i) => i.value == item);
         //debugger;
         asset.node.setHighlight({ fill: hexToRgb(color) });
@@ -249,9 +261,21 @@ function App() {
     });
     document.querySelector(".left").appendChild(select);
   }*/
-  return demoSceneId && publishableToken ? (
+  return (
     <div className="container">
       <div className="left">
+        <Input
+          value={token}
+          placeholder="YOUR TOKEN"
+          onChange={(e) => setToken(e.target.value)}
+          style={{ width: "330px" }}
+        />
+        <Input
+          value={scene}
+          placeholder="YOUR SCENE ID"
+          onChange={(e) => setScene(e.target.value)}
+          style={{ width: "330px" }}
+        />
         <h2>Asset Recognizer</h2>
         <ArchiSelect
           list={category}
@@ -286,7 +310,9 @@ function App() {
       </div>
       <div id="hello-plan"></div>
     </div>
-  ) : (
+  );
+
+  /*
     <div className="info">
       Please add your sceneID and token into your browser in the following
       format
@@ -300,7 +326,7 @@ function App() {
         </code>
       </div>
     </div>
-  );
+  */
 }
 
 export default App;

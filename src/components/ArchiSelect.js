@@ -38,6 +38,7 @@ export default function ArchiSelect({
   const classes = useStyles();
 
   const handleChange = (event) => {
+    //debugger;
     let newValue = event.target.value.reduce((obj, item) => {
       obj[item] = true;
       return obj;
