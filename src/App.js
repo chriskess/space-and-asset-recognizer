@@ -264,17 +264,19 @@ function App() {
   return (
     <div className="container">
       <div className="left">
+        <h2>Your Token & SceneId</h2>
         <Input
           value={token}
           placeholder="YOUR TOKEN"
           onChange={(e) => setToken(e.target.value)}
-          style={{ width: "330px" }}
+          style={({ width: "330px" }, { padding: "5px" }, { margin: "10px" })}
         />
+        <br></br>
         <Input
           value={scene}
           placeholder="YOUR SCENE ID"
           onChange={(e) => setScene(e.target.value)}
-          style={{ width: "330px" }}
+          style={({ padding: "5px" }, { margin: "10px" })}
         />
         <h2>Asset Recognizer</h2>
         <ArchiSelect
