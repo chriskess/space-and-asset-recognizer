@@ -33,6 +33,7 @@ export default function ArchiSelect({
   title,
   value = {},
   setter = () => {},
+  uncheckedItemsHandler = () => {},
 }) {
   const [items, setItems] = useState(value);
   const classes = useStyles();
@@ -43,9 +44,18 @@ export default function ArchiSelect({
       obj[item] = true;
       return obj;
     }, {});
+
+    let findKeysUnchecked = [];
+    for (let key in items) {
+      if (!newValue[key]) {
+        findKeysUnchecked.push(key);
+      }
+    }
+    uncheckedItemsHandler(findKeysUnchecked);
     setItems(newValue);
     setter(newValue);
   };
+
   const handleColor = (event, index) => {
     event.stopPropagation();
     let newList = [...list];

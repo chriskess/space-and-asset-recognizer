@@ -102,9 +102,6 @@ function App() {
   }, [token, scene]);
 
   useEffect(() => {
-    for (let key in selectedSubCategory) {
-      delete selectedSubCategory[key];
-    }
     if (assets.length && Object.values(selectedCategory).some(Boolean)) {
       //debugger;
       let uniqualSubCategory = new Set();
@@ -122,17 +119,20 @@ function App() {
       /*setSubCategory(
         listOfSubcategories.map((value) => ({ value, color: "#aa0000" }))
       );*/
-
+      //debugger;
       listOfSubcategories.forEach((item) => {
         selectedSubCategory[item] = true;
       });
+      setSelectedSubCategory({ ...selectedSubCategory });
+      //todo find out why selectedSubCategories got erased after we chagne category
     }
-    setSelectedSubCategory({ ...selectedSubCategory });
   }, [selectedCategory]);
 
   useEffect(() => {
     for (let key in selectedUsage) {
-      delete selectedUsage[key];
+      if (!selectedUsage[key]) {
+        delete selectedUsage[key];
+      }
     }
     if (spaceList.length && Object.values(selectedSpaces).some(Boolean)) {
       //debugger;
@@ -233,6 +233,22 @@ function App() {
     });
   }, [selectedUsage, usage]);
 
+  function cleanSubCategoriesAfterCategoryIsDeselected(categories) {
+    let listOfSubcategoriesToDelete = assets.reduce((list, item) => {
+      if (item.categories.some((i) => categories.includes(i))) {
+        //debugger;
+        list.push(...item.subCategories);
+      }
+      return list;
+    }, []);
+    for (let key in selectedSubCategory) {
+      if (listOfSubcategoriesToDelete.includes(key)) {
+        debugger;
+        delete selectedSubCategory[key];
+      }
+    }
+    setSelectedSubCategory({ ...setSelectedSubCategory });
+  }
   /*function generateSelectBox(list, title, assets, prop) {
     let select = document.createElement("select");
     select.multiple = true;
@@ -269,14 +285,14 @@ function App() {
           value={token}
           placeholder="YOUR TOKEN"
           onChange={(e) => setToken(e.target.value)}
-          style={({ width: "330px" }, { padding: "5px" }, { margin: "10px" })}
+          style={{ width: "330px", padding: "5px", margin: "10px" }}
         />
         <br></br>
         <Input
           value={scene}
           placeholder="YOUR SCENE ID"
           onChange={(e) => setScene(e.target.value)}
-          style={({ padding: "5px" }, { margin: "10px" })}
+          style={{ width: "330px", padding: "5px", margin: "10px" }}
         />
         <h2>Asset Recognizer</h2>
         <ArchiSelect
@@ -285,6 +301,7 @@ function App() {
           title="category"
           value={selectedCategory}
           setter={setSelectedCategory}
+          uncheckedItemsHandler={cleanSubCategoriesAfterCategoryIsDeselected}
         />
 
         <ArchiSelect
