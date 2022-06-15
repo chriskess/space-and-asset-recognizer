@@ -119,7 +119,6 @@ function App() {
       /*setSubCategory(
         listOfSubcategories.map((value) => ({ value, color: "#aa0000" }))
       );*/
-      //debugger;
       listOfSubcategories.forEach((item) => {
         selectedSubCategory[item] = true;
       });
@@ -233,6 +232,7 @@ function App() {
     });
   }, [selectedUsage, usage]);
 
+  //todo the same but for spaces
   function cleanSubCategoriesAfterCategoryIsDeselected(categories) {
     let listOfSubcategoriesToDelete = assets.reduce((list, item) => {
       if (item.categories.some((i) => categories.includes(i))) {
@@ -243,11 +243,12 @@ function App() {
     }, []);
     for (let key in selectedSubCategory) {
       if (listOfSubcategoriesToDelete.includes(key)) {
-        debugger;
+        //debugger;
         delete selectedSubCategory[key];
       }
     }
-    setSelectedSubCategory({ ...setSelectedSubCategory });
+    //debugger;
+    setSelectedSubCategory({ ...selectedSubCategory });
   }
   /*function generateSelectBox(list, title, assets, prop) {
     let select = document.createElement("select");
