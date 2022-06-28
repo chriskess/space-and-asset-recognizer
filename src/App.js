@@ -250,6 +250,22 @@ function App() {
     //debugger;
     setSelectedSubCategory({ ...selectedSubCategory });
   }
+  function cleanUsageAfterSpaceIsDeselected(spacesList) {
+    let listOfUsageToDelete = spaces.reduce((list, item) => {
+      if (spacesList.includes(item.program)) {
+        //debugger;
+        list.push(item.usage);
+      }
+      return list;
+    }, []);
+    for (let key in selectedUsage) {
+      if (listOfUsageToDelete.includes(key)) {
+        //debugger;
+        delete selectedUsage[key];
+      }
+    }
+    setSelectedUsage({ ...selectedUsage });
+  }
   /*function generateSelectBox(list, title, assets, prop) {
     let select = document.createElement("select");
     select.multiple = true;
@@ -319,6 +335,7 @@ function App() {
           title="space"
           value={selectedSpaces}
           setter={setSelectedSpaces}
+          uncheckedItemsHandler={cleanUsageAfterSpaceIsDeselected}
         />
         <ArchiSelect
           list={usage}
